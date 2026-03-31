@@ -26,8 +26,6 @@ def eliminar_usuario(id:int):
     usuarios.pop(id)
     return {"mensaje":"usuario eliminado"}
 
-
-
 @app.get("/usuarios/{id}")
-def devolver()
+def devolver(id:int):
     return usuarios[id];
