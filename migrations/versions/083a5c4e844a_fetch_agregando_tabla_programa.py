@@ -19,7 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # ### Borra el bloque de op.create_table('tipo_programa', ...) y su índice ###
     op.create_table('programa',
         sa.Column('id_programa', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('id_tipo_programa', sa.Integer(), nullable=False),
@@ -31,6 +30,5 @@ def upgrade() -> None:
     op.create_index(op.f('ix_programa_id_programa'), 'programa', ['id_programa'], unique=False)
 
 def downgrade() -> None:
-    # ### Solo borramos 'programa'. No borres 'tipo_programa' aquí porque se encarga la otra migración y la restructuración ###
     op.drop_index(op.f('ix_programa_id_programa'), table_name='programa')
     op.drop_table('programa')
