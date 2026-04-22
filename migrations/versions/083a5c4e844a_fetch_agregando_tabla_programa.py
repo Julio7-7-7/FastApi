@@ -31,6 +31,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_programa_id_programa'), 'programa', ['id_programa'], unique=False)
 
 def downgrade() -> None:
-    # ### Solo borramos 'programa'. No borres 'tipo_programa' aquí porque se encarga la otra migración ###
+    # ### Solo borramos 'programa'. No borres 'tipo_programa' aquí porque se encarga la otra migración y la restructuración ###
     op.drop_index(op.f('ix_programa_id_programa'), table_name='programa')
     op.drop_table('programa')
