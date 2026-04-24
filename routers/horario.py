@@ -33,10 +33,8 @@ def editar(id: int, data: HorarioCreate, db: Session = Depends(get_db)):
     horario = db.query(Horario).filter(Horario.id_horario == id).first()
     if not horario:
         raise HTTPException(status_code=404, detail="No encontrado")
-    
     for key, value in data.model_dump().items():
         setattr(horario, key, value)
-
     db.commit()
     db.refresh(horario)
     return horario
@@ -46,7 +44,6 @@ def eliminar(id: int, db: Session = Depends(get_db)):
     horario = db.query(Horario).filter(Horario.id_horario == id).first()
     if not horario:
         raise HTTPException(status_code=404, detail="No encontrado")
-
     db.delete(horario)
     db.commit()
     return {"message": "Eliminado exitosamente"}

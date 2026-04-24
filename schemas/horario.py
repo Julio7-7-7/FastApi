@@ -1,9 +1,19 @@
 from pydantic import BaseModel
 from datetime import datetime, time
+from enum import Enum
+
+class DiaEnum(str, Enum):
+    lunes = "lunes"
+    martes = "martes"
+    miercoles = "miercoles"
+    jueves = "jueves"
+    viernes = "viernes"
+    sabado = "sabado"
+    domingo = "domingo"
 
 class HorarioBase(BaseModel):
     id_detalle_programa_modulo: int
-    dia: str
+    dia: DiaEnum
     hora_ini: time
     hora_fin: time
 
