@@ -12,3 +12,4 @@ from models.alumno import Alumno
 from models.detalle_programa_alumno import DetalleProgramaAlumno
 from models.requisito import Requisito
 from models.control_documentacion import ControlDocumentacion
+from models.historial_modulo import HistorialModulo

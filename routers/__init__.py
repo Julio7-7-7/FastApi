@@ -12,6 +12,7 @@ from routers import alumno
 from routers import detalle_programa_alumno
 from routers import requisito
 from routers import control_documentacion
+from routers import historial_modulo
 
 
 all_routers = [
@@ -28,5 +29,6 @@ all_routers = [
     alumno.router,
     detalle_programa_alumno.router,
     requisito.router,
-    control_documentacion.router
+    control_documentacion.router,
+    historial_modulo.router,
 ]

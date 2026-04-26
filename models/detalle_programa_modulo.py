@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from database import Base
 
 class DetalleProgramaModulo(Base):
@@ -14,3 +15,5 @@ class DetalleProgramaModulo(Base):
     estado = Column(String, nullable=False, default="programado")
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    historial = relationship("HistorialModulo", back_populates="detalle_programa_modulo")
