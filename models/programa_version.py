@@ -16,3 +16,4 @@ class ProgramaVersion(Base):
 
     programa = relationship("Programa", back_populates="versiones")
     modulos = relationship("Modulo", back_populates="programa_version")
+    ediciones = relationship("ProgramaVersionEdicion", back_populates="programa_version")
