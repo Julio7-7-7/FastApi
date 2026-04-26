@@ -7,8 +7,8 @@ class DetalleProgramaModulo(Base):
 
     id_detalle_programa_modulo = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_programa_version_edicion = Column(Integer, ForeignKey("programa_version_edicion.id_programa_version_edicion"), nullable=False)
-    id_modulo = Column(Integer, ForeignKey("modulo.id_modulo"), nullable=False)
-    id_docente = Column(Integer, ForeignKey("docente.id_docente"), nullable=False)
+    id_modulo = Column(Integer, ForeignKey("modulos.id_modulo"), nullable=False)
+    id_docente = Column(Integer, ForeignKey("docentes.id_docente"), nullable=False)
     fecha_inicio = Column(Date, nullable=True)
     fecha_fin = Column(Date, nullable=True)
     estado = Column(String, nullable=False, default="programado")

@@ -6,7 +6,7 @@ class ProgramaVersionEdicion(Base):
     __tablename__ = "programa_version_edicion"
 
     id_programa_version_edicion = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    id_programa_version = Column(Integer, ForeignKey("programa_version.id_programa_version"), nullable=False)
+    id_programa_version = Column(Integer, ForeignKey("programas_version.id_programa_version"), nullable=False)
     id_modalidad = Column(Integer, ForeignKey("modalidad.id_modalidad"), nullable=False)
     edicion = Column(Integer, nullable=False)
     gestion = Column(String, nullable=False)

@@ -11,6 +11,8 @@ from routers import horario
 from routers import alumno
 from routers import detalle_programa_alumno
 from routers import requisito
+from routers import control_documentacion
+
 
 all_routers = [
     tipo_programa.router,
@@ -26,4 +28,5 @@ all_routers = [
     alumno.router,
     detalle_programa_alumno.router,
     requisito.router,
+    control_documentacion.router
 ]

@@ -2,16 +2,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.tipo_programa import TipoPrograma
-from schemas.tipo_programa import TipoProgramaCreate, TipoProgramaResponse
+from schemas.tipo_programa import TipoProgramaCreate, TipoProgramaUpdate, TipoProgramaResponse
 
 router = APIRouter(
-    prefix="/tipo-programa",
-    tags=["Tipo Programa"]
+    prefix="/tipos-programa",
+    tags=["Tipos de Programa"]
 )
 
-@router.post("/", response_model=TipoProgramaResponse)
+@router.post("/", response_model=TipoProgramaResponse, status_code=201)
 def crear(data: TipoProgramaCreate, db: Session = Depends(get_db)):
-    nuevo = TipoPrograma(nombre=data.nombre)
+    existente = db.query(TipoPrograma).filter(TipoPrograma.nombre == data.nombre).first()
+    if existente:
+        raise HTTPException(status_code=400, detail="Ya existe un tipo de programa con ese nombre")
+    nuevo = TipoPrograma(**data.model_dump())
     db.add(nuevo)
     db.commit()
     db.refresh(nuevo)
@@ -28,21 +31,21 @@ def obtener(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No encontrado")
     return tipo
 
-@router.put("/{id}", response_model=TipoProgramaResponse)
-def editar(id: int, data: TipoProgramaCreate, db: Session = Depends(get_db)):
+@router.patch("/{id}", response_model=TipoProgramaResponse)
+def editar(id: int, data: TipoProgramaUpdate, db: Session = Depends(get_db)):
     tipo = db.query(TipoPrograma).filter(TipoPrograma.id_tipo_programa == id).first()
     if not tipo:
         raise HTTPException(status_code=404, detail="No encontrado")
-    tipo.nombre = data.nombre
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(tipo, key, value)
     db.commit()
     db.refresh(tipo)
     return tipo
 
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 def eliminar(id: int, db: Session = Depends(get_db)):
     tipo = db.query(TipoPrograma).filter(TipoPrograma.id_tipo_programa == id).first()
     if not tipo:
         raise HTTPException(status_code=404, detail="No encontrado")
     db.delete(tipo)
     db.commit()
-    return {"message": "Eliminado exitosamente"}
