@@ -1,12 +1,19 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
 class ModalidadAcademica(Base):
-    __tablename__ = "modalidad_academica"
+    __tablename__ = "modalidades_academicas"
 
     id_modalidad_academica = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    nombre_modalidad = Column(String, nullable=False)
-    vigente = Column(Boolean, default=True, nullable=False)
+    nombre_modalidad = Column(String(100), nullable=False, unique=True)
+    descripcion = Column(String(500), nullable=True)
+    requiere_titulo = Column(Boolean, default=False, nullable=False)
+    uso_unico = Column(Boolean, default=False, nullable=False)
+    estado = Column(String(20), nullable=False, default="activo")
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    requisitos = relationship("Requisito", back_populates="modalidad_academica")
+    detalles_alumno = relationship("DetalleProgramaAlumno", back_populates="modalidad_academica")

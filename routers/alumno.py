@@ -2,15 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.alumno import Alumno
-from schemas.alumno import AlumnoCreate, AlumnoResponse
+from schemas.alumno import AlumnoCreate, AlumnoUpdate, AlumnoResponse
 
 router = APIRouter(
-    prefix="/alumno",
-    tags=["Alumno"]
+    prefix="/alumnos",
+    tags=["Alumnos"]
 )
 
-@router.post("/", response_model=AlumnoResponse)
+@router.post("/", response_model=AlumnoResponse, status_code=201)
 def crear(data: AlumnoCreate, db: Session = Depends(get_db)):
+    if data.ci:
+        if db.query(Alumno).filter(Alumno.ci == data.ci).first():
+            raise HTTPException(status_code=400, detail="Ya existe un alumno con ese CI")
+    if data.pasaporte:
+        if db.query(Alumno).filter(Alumno.pasaporte == data.pasaporte).first():
+            raise HTTPException(status_code=400, detail="Ya existe un alumno con ese pasaporte")
+    if db.query(Alumno).filter(Alumno.correo == data.correo).first():
+        raise HTTPException(status_code=400, detail="Ya existe un alumno con ese correo")
     nuevo = Alumno(**data.model_dump())
     db.add(nuevo)
     db.commit()
@@ -28,22 +36,30 @@ def obtener(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No encontrado")
     return alumno
 
-@router.put("/{id}", response_model=AlumnoResponse)
-def editar(id: int, data: AlumnoCreate, db: Session = Depends(get_db)):
+@router.patch("/{id}", response_model=AlumnoResponse)
+def editar(id: int, data: AlumnoUpdate, db: Session = Depends(get_db)):
     alumno = db.query(Alumno).filter(Alumno.id_alumno == id).first()
     if not alumno:
         raise HTTPException(status_code=404, detail="No encontrado")
-    for key, value in data.model_dump().items():
+    if data.ci:
+        if db.query(Alumno).filter(Alumno.ci == data.ci, Alumno.id_alumno != id).first():
+            raise HTTPException(status_code=400, detail="Ya existe un alumno con ese CI")
+    if data.pasaporte:
+        if db.query(Alumno).filter(Alumno.pasaporte == data.pasaporte, Alumno.id_alumno != id).first():
+            raise HTTPException(status_code=400, detail="Ya existe un alumno con ese pasaporte")
+    if data.correo:
+        if db.query(Alumno).filter(Alumno.correo == data.correo, Alumno.id_alumno != id).first():
+            raise HTTPException(status_code=400, detail="Ya existe un alumno con ese correo")
+    for key, value in data.model_dump(exclude_unset=True).items():
         setattr(alumno, key, value)
     db.commit()
     db.refresh(alumno)
     return alumno
 
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 def eliminar(id: int, db: Session = Depends(get_db)):
     alumno = db.query(Alumno).filter(Alumno.id_alumno == id).first()
     if not alumno:
         raise HTTPException(status_code=404, detail="No encontrado")
     db.delete(alumno)
     db.commit()
-    return {"message": "Eliminado exitosamente"}

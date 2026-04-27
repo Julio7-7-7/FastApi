@@ -1,17 +1,40 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from datetime import datetime
+from enum import Enum
+from schemas.modalidad_academica import ModalidadAcademicaResponse
+
+class EstadoRequisitoEnum(str, Enum):
+    activo = "activo"
+    inactivo = "inactivo"
 
 class RequisitoBase(BaseModel):
     id_modalidad_academica: int
     nombre: str
     descripcion: str | None = None
     obligatorio: bool = True
+    estado: EstadoRequisitoEnum = EstadoRequisitoEnum.activo
+
+    @field_validator("nombre")
+    @classmethod
+    def validar_nombre(cls, v):
+        if len(v.strip()) < 3:
+            raise ValueError("El nombre debe tener al menos 3 caracteres")
+        if len(v.strip()) > 200:
+            raise ValueError("El nombre no puede superar 200 caracteres")
+        return v.strip().title()
 
 class RequisitoCreate(RequisitoBase):
     pass
 
+class RequisitoUpdate(BaseModel):
+    nombre: str | None = None
+    descripcion: str | None = None
+    obligatorio: bool | None = None
+    estado: EstadoRequisitoEnum | None = None
+
 class RequisitoResponse(RequisitoBase):
     id_requisito: int
+    modalidad_academica: ModalidadAcademicaResponse
     created_at: datetime
     updated_at: datetime
 

@@ -23,3 +23,4 @@ class DetalleProgramaModulo(Base):
     docente = relationship("Docente", back_populates="detalles")
     modalidad = relationship("Modalidad", back_populates="detalles_modulo")
     historial = relationship("HistorialModulo", back_populates="detalle_programa_modulo")
+    horarios = relationship("Horario", back_populates="detalle_programa_modulo")

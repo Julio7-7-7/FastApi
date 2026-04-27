@@ -2,15 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.requisito import Requisito
-from schemas.requisito import RequisitoCreate, RequisitoResponse
+from schemas.requisito import RequisitoCreate, RequisitoUpdate, RequisitoResponse
 
 router = APIRouter(
-    prefix="/requisito",
-    tags=["Requisito"]
+    prefix="/requisitos",
+    tags=["Requisitos"]
 )
 
-@router.post("/", response_model=RequisitoResponse)
+@router.post("/", response_model=RequisitoResponse, status_code=201)
 def crear(data: RequisitoCreate, db: Session = Depends(get_db)):
+    existente = db.query(Requisito).filter(
+        Requisito.nombre == data.nombre,
+        Requisito.id_modalidad_academica == data.id_modalidad_academica
+    ).first()
+    if existente:
+        raise HTTPException(status_code=400, detail="Ya existe un requisito con ese nombre para esa modalidad académica")
     nuevo = Requisito(**data.model_dump())
     db.add(nuevo)
     db.commit()
@@ -28,22 +34,29 @@ def obtener(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No encontrado")
     return requisito
 
-@router.put("/{id}", response_model=RequisitoResponse)
-def editar(id: int, data: RequisitoCreate, db: Session = Depends(get_db)):
+@router.patch("/{id}", response_model=RequisitoResponse)
+def editar(id: int, data: RequisitoUpdate, db: Session = Depends(get_db)):
     requisito = db.query(Requisito).filter(Requisito.id_requisito == id).first()
     if not requisito:
         raise HTTPException(status_code=404, detail="No encontrado")
-    for key, value in data.model_dump().items():
+    if data.nombre:
+        existente = db.query(Requisito).filter(
+            Requisito.nombre == data.nombre,
+            Requisito.id_modalidad_academica == requisito.id_modalidad_academica,
+            Requisito.id_requisito != id
+        ).first()
+        if existente:
+            raise HTTPException(status_code=400, detail="Ya existe un requisito con ese nombre para esa modalidad académica")
+    for key, value in data.model_dump(exclude_unset=True).items():
         setattr(requisito, key, value)
     db.commit()
     db.refresh(requisito)
     return requisito
 
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 def eliminar(id: int, db: Session = Depends(get_db)):
     requisito = db.query(Requisito).filter(Requisito.id_requisito == id).first()
     if not requisito:
         raise HTTPException(status_code=404, detail="No encontrado")
     db.delete(requisito)
     db.commit()
-    return {"message": "Eliminado exitosamente"}

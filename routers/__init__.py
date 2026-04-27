@@ -13,7 +13,7 @@ from routers import detalle_programa_alumno
 from routers import requisito
 from routers import control_documentacion
 from routers import historial_modulo
-
+from routers import tipo_descuento
 
 all_routers = [
     tipo_programa.router,
@@ -31,4 +31,5 @@ all_routers = [
     requisito.router,
     control_documentacion.router,
     historial_modulo.router,
+    tipo_descuento.router,
 ]
