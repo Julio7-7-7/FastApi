@@ -2,15 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.modalidad_academica import ModalidadAcademica
-from schemas.modalidad_academica import ModalidadAcademicaCreate, ModalidadAcademicaResponse
+from schemas.modalidad_academica import ModalidadAcademicaCreate, ModalidadAcademicaUpdate, ModalidadAcademicaResponse
 
 router = APIRouter(
-    prefix="/modalidad-academica",
-    tags=["Modalidad Academica"]
+    prefix="/modalidades-academicas",
+    tags=["Modalidades Academicas"]
 )
 
-@router.post("/", response_model=ModalidadAcademicaResponse)
+@router.post("/", response_model=ModalidadAcademicaResponse, status_code=201)
 def crear(data: ModalidadAcademicaCreate, db: Session = Depends(get_db)):
+    existente = db.query(ModalidadAcademica).filter(
+        ModalidadAcademica.nombre_modalidad == data.nombre_modalidad
+    ).first()
+    if existente:
+        raise HTTPException(status_code=400, detail="Ya existe una modalidad académica con ese nombre")
     nueva = ModalidadAcademica(**data.model_dump())
     db.add(nueva)
     db.commit()
@@ -23,27 +28,32 @@ def listar(db: Session = Depends(get_db)):
 
 @router.get("/{id}", response_model=ModalidadAcademicaResponse)
 def obtener(id: int, db: Session = Depends(get_db)):
-    modalidad = db.query(ModalidadAcademica).filter(ModalidadAcademica.id_modalidad_academica == id).first()
+    modalidad = db.query(ModalidadAcademica).filter(
+        ModalidadAcademica.id_modalidad_academica == id
+    ).first()
     if not modalidad:
         raise HTTPException(status_code=404, detail="No encontrado")
     return modalidad
 
-@router.put("/{id}", response_model=ModalidadAcademicaResponse)
-def editar(id: int, data: ModalidadAcademicaCreate, db: Session = Depends(get_db)):
-    modalidad = db.query(ModalidadAcademica).filter(ModalidadAcademica.id_modalidad_academica == id).first()
+@router.patch("/{id}", response_model=ModalidadAcademicaResponse)
+def editar(id: int, data: ModalidadAcademicaUpdate, db: Session = Depends(get_db)):
+    modalidad = db.query(ModalidadAcademica).filter(
+        ModalidadAcademica.id_modalidad_academica == id
+    ).first()
     if not modalidad:
         raise HTTPException(status_code=404, detail="No encontrado")
-    for key, value in data.model_dump().items():
+    for key, value in data.model_dump(exclude_unset=True).items():
         setattr(modalidad, key, value)
     db.commit()
     db.refresh(modalidad)
     return modalidad
 
-@router.delete("/{id}")
+@router.delete("/{id}", status_code=204)
 def eliminar(id: int, db: Session = Depends(get_db)):
-    modalidad = db.query(ModalidadAcademica).filter(ModalidadAcademica.id_modalidad_academica == id).first()
+    modalidad = db.query(ModalidadAcademica).filter(
+        ModalidadAcademica.id_modalidad_academica == id
+    ).first()
     if not modalidad:
         raise HTTPException(status_code=404, detail="No encontrado")
     db.delete(modalidad)
     db.commit()
-    return {"message": "Eliminado exitosamente"}
