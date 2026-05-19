@@ -1,11 +1,11 @@
 from pydantic import BaseModel, field_validator
 from datetime import datetime
-from schemas.tipo_programa import TipoProgramaResponse
+from schemas.tipo_programa import TipoProgramaResponse, EstadoEnum
 
 class ProgramaBase(BaseModel):
     id_tipo_programa: int
     nombre_programa: str
-    vigente: bool = True
+    estado: EstadoEnum = EstadoEnum.activo
 
     @field_validator("nombre_programa")
     @classmethod
@@ -22,7 +22,7 @@ class ProgramaCreate(ProgramaBase):
 class ProgramaUpdate(BaseModel):
     id_tipo_programa: int | None = None
     nombre_programa: str | None = None
-    vigente: bool | None = None
+    estado: EstadoEnum | None = None
 
 class ProgramaResponse(ProgramaBase):
     id_programa: int

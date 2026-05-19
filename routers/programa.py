@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import get_db
 from models.programa import Programa
 from schemas.programa import ProgramaCreate, ProgramaUpdate, ProgramaResponse
@@ -22,18 +22,18 @@ def crear(data: ProgramaCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[ProgramaResponse])
 def listar(db: Session = Depends(get_db)):
-    return db.query(Programa).all()
+    return db.query(Programa).options(joinedload(Programa.tipo_programa)).all()
 
 @router.get("/{id}", response_model=ProgramaResponse)
 def obtener(id: int, db: Session = Depends(get_db)):
-    programa = db.query(Programa).filter(Programa.id_programa == id).first()
+    programa = db.query(Programa).options(joinedload(Programa.tipo_programa)).filter(Programa.id_programa == id).first()
     if not programa:
         raise HTTPException(status_code=404, detail="No encontrado")
     return programa
 
 @router.patch("/{id}", response_model=ProgramaResponse)
 def editar(id: int, data: ProgramaUpdate, db: Session = Depends(get_db)):
-    programa = db.query(Programa).filter(Programa.id_programa == id).first()
+    programa = db.query(Programa).options(joinedload(Programa.tipo_programa)).filter(Programa.id_programa == id).first()
     if not programa:
         raise HTTPException(status_code=404, detail="No encontrado")
     for key, value in data.model_dump(exclude_unset=True).items():
@@ -41,11 +41,3 @@ def editar(id: int, data: ProgramaUpdate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(programa)
     return programa
-
-@router.delete("/{id}", status_code=204)
-def eliminar(id: int, db: Session = Depends(get_db)):
-    programa = db.query(Programa).filter(Programa.id_programa == id).first()
-    if not programa:
-        raise HTTPException(status_code=404, detail="No encontrado")
-    db.delete(programa)
-    db.commit()

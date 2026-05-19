@@ -41,11 +41,3 @@ def editar(id: int, data: TipoProgramaUpdate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(tipo)
     return tipo
-
-@router.delete("/{id}", status_code=204)
-def eliminar(id: int, db: Session = Depends(get_db)):
-    tipo = db.query(TipoPrograma).filter(TipoPrograma.id_tipo_programa == id).first()
-    if not tipo:
-        raise HTTPException(status_code=404, detail="No encontrado")
-    db.delete(tipo)
-    db.commit()
