@@ -1,10 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
 class ProgramaVersion(Base):
     __tablename__ = "programas_version"
+
+    __table_args__ = (
+        UniqueConstraint('id_programa', 'version', name='uq_programa_version'),
+    )
 
     id_programa_version = Column(Integer, primary_key=True, index=True, autoincrement=True)
     id_programa = Column(Integer, ForeignKey("programas.id_programa"), nullable=False)
